@@ -1,5 +1,3 @@
-use super::vertex_desc::VertexDesc;
-
 #[repr(C)]
 #[derive(Copy, Clone, bytemuck::Pod, bytemuck::Zeroable)]
 pub struct VertexInstanceRaw {
@@ -7,8 +5,8 @@ pub struct VertexInstanceRaw {
     pub normal_matrix: [[f32; 4]; 4],
 }
 
-impl VertexDesc for VertexInstanceRaw {
-    fn desc<'a>() -> wgpu::VertexBufferLayout<'a> {
+impl VertexInstanceRaw {
+    pub fn desc<'a>() -> wgpu::VertexBufferLayout<'a> {
         use std::mem;
         wgpu::VertexBufferLayout {
             array_stride: mem::size_of::<VertexInstanceRaw>() as wgpu::BufferAddress,

@@ -3,21 +3,18 @@ pub struct Voxel {
     density: u8,
 }
 
-// decorative argument type
-pub struct Density(u8);
-
 impl Voxel {
-    pub fn new(density: Density) -> Self {
-        Self { density: density.0 }
+    pub fn new(density: u8) -> Self {
+        Self { density }
     }
 
     pub fn new_empty() -> Self {
-        Self::new(Density(0u8))
+        Self::new(0u8)
     }
 
     #[allow(dead_code)]
     pub fn new_solid() -> Self {
-        Self::new(Density(255u8))
+        Self::new(255u8)
     }
 
     pub fn is_solid(&self) -> bool {

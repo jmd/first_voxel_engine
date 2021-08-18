@@ -1,6 +1,6 @@
 use wgpu::util::DeviceExt;
 
-use crate::{model::ModelVertex, rendering::vertex_desc::VertexDesc, texture::Texture, Vertex};
+use crate::{model::ModelVertex, texture::Texture, Vertex};
 
 pub struct DepthPass {
     pipeline: wgpu::RenderPipeline,

@@ -16,10 +16,10 @@ use crate::{
     depth_pass::DepthPass,
     light::Light,
     rendering::{
-        render_utils::create_render_pipeline, vertex_desc::VertexDesc, vertex_instance::*,
+        render_utils::create_render_pipeline, vertex_instance::*,
     },
     voxel_tools::{
-        rendering::voxel_pipeline::create_voxel_pipeline,
+        voxel_rendering::create_voxel_pipeline,
     },
 };
 

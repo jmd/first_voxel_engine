@@ -5,7 +5,6 @@ use wgpu::util::DeviceExt;
 
 use crate::{
     color::{self, Color},
-    rendering::vertex_desc::VertexDesc,
     texture::Texture,
 };
 pub trait DrawModel<'a, 'b>
@@ -104,8 +103,8 @@ pub struct ModelVertex {
     color_diffuse: [f32; 3],
 }
 
-impl VertexDesc for ModelVertex {
-    fn desc<'a>() -> wgpu::VertexBufferLayout<'a> {
+impl ModelVertex {
+    pub fn desc<'a>() -> wgpu::VertexBufferLayout<'a> {
         use std::mem;
         wgpu::VertexBufferLayout {
             array_stride: mem::size_of::<ModelVertex>() as wgpu::BufferAddress,

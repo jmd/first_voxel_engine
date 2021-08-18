@@ -7,14 +7,13 @@ use super::{
 use super::{
     direction::Direction,
     quad::Quad,
-    rendering::voxel_vertex::VoxelVertex,
     voxel::Voxel,
 };
+use crate::voxel_tools::voxel_rendering::VoxelVertex;
 use wgpu::util::DeviceExt;
 
 pub fn build_chunk_mesh(
     chunks: &mut Chunks,
-    //chunk: &mut Chunk,
     device: &wgpu::Device,
     gpu_resources: &mut GpuResources,
     chunk_pos: &cgmath::Vector3<i32>,
