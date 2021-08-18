@@ -84,7 +84,7 @@ impl State {
         let size = window.inner_size();
 
         // handler for our gpu
-        let instance = wgpu::Instance::new(wgpu::BackendBit::DX12);
+        let instance = wgpu::Instance::new(wgpu::BackendBit::PRIMARY);
         let surface = unsafe { instance.create_surface(window) };
         let adapter = instance
             .request_adapter(&wgpu::RequestAdapterOptions {
