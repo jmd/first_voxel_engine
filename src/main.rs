@@ -258,7 +258,6 @@ impl State {
                 push_constant_ranges: &[],
             });
 
-        println!("creating pipeline");
         let render_pipeline = create_render_pipeline(
             &device,
             &render_pipeline_layout,

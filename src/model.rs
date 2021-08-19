@@ -181,7 +181,6 @@ impl Model {
 
         let mut materials = Vec::new();
         for mat in obj_materials {
-            println!("mat data: {:?}", mat);
             let diffuse_path = mat.diffuse_texture;
             // no diffuse texture
             let diffuse_texture = if diffuse_path.len() != 0 {
@@ -219,9 +218,6 @@ impl Model {
         let mut meshes = Vec::new();
         for m in obj_models {
             let mut vertices = Vec::new();
-            println!("mesh indices: {:?}", m.mesh.indices.len());
-            println!("mesh postiions: {:?}", m.mesh.positions.len());
-            println!("mesh normals: {:?}", m.mesh.normals.len());
             for i in 0..m.mesh.positions.len() / 3 {
                 vertices.push(ModelVertex {
                     position: [

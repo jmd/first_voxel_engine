@@ -61,7 +61,6 @@ pub fn create_voxel_pipeline(
     let pipeline_layout =
         render_utils::create_pipeline_layout(&device, "voxel_pipeline", bind_group_layouts);
 
-    println!("creating pipeline");
     let render_pipeline = create_render_pipeline(
         &device,
         &pipeline_layout,

@@ -133,7 +133,6 @@ impl Chunks {
         let chunk_world_pos = Self::chunk_to_world(chunk_pos);
 
         chunk.build_voxel_data(&chunk_world_pos);
-        println!("loaded chunk data at world pos: {:?}", chunk_world_pos);
         self.chunk_data_map.insert(chunk_pos, chunk);
     }
 
@@ -149,7 +148,6 @@ impl Chunks {
             let chunk_mesh = self.chunk_mesh_pool.detached();
             self.chunk_mesh_map.insert(chunk_pos, chunk_mesh);
 
-            println!("building chunk mesh at: {:?}", chunk_pos);
             let chunk_world_pos = Self::chunk_to_world(chunk_pos);
             if mesh_builder::build_chunk_mesh(
                 self,
@@ -272,7 +270,6 @@ impl Chunks {
             if self.chunk_data_unload_queue.contains(chunk_pos) {
                 continue;
             }
-            println!("queueing chunk for data unload: {:?}", chunk_pos);
             self.chunk_data_unload_queue.push_back(*chunk_pos);
             if self.chunk_data_unload_queue.len() >= MAX_DATA_UNLOAD_QUEUE {
                 return;
@@ -309,7 +306,6 @@ impl Chunks {
                 continue;
             }
             self.chunk_mesh_unload_queue.push_back(*chunk_pos);
-            println!("queueing chunk for mesh unload: {:?}", chunk_pos);
             if self.chunk_mesh_unload_queue.len() >= MAX_MESH_UNLOAD_QUEUE {
                 return;
             }
@@ -320,7 +316,6 @@ impl Chunks {
         while let Some(chunk_pos) = self.chunk_data_unload_queue.pop_front() {
             // detach chunk data
             if let Some(chunk_data) = self.chunk_data_map.remove(&chunk_pos) {
-                println!("unloading data at: {:?}", chunk_pos);
                 self.chunk_pool.attach(chunk_data);
             }
         }
@@ -331,7 +326,6 @@ impl Chunks {
         while let Some(chunk_pos) = self.chunk_mesh_unload_queue.pop_front() {
             // detach mesh data
             if let Some(chunk_mesh) = self.chunk_mesh_map.remove(&chunk_pos) {
-                println!("unloading mesh at: {:?}", chunk_pos);
                 if let Some(v_buf_key) = chunk_mesh.vertex_buffer {
                     if let Some(v_buffer) = gpu_resources.buffer_arena.get_mut(v_buf_key) {
                         v_buffer.destroy();
@@ -380,7 +374,6 @@ impl Chunks {
                     }
                     // check if we don't wan to load any more
                     if self.chunk_data_load_queue.len() >= MAX_DATA_QUEUE {
-                        println!("done");
                         return;
                     }
                 }
