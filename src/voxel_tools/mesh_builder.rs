@@ -1,5 +1,3 @@
-use crate::rendering::gpu_resources::GpuResources;
-
 use super::{
     chunk,
     chunks::{adjacent_voxels, Chunks},
@@ -10,16 +8,13 @@ use super::{
     voxel::Voxel,
 };
 use crate::voxel_tools::voxel_rendering::VoxelVertex;
-use wgpu::util::DeviceExt;
 
 pub fn build_chunk_mesh(
     chunks: &mut Chunks,
-    device: &wgpu::Device,
-    gpu_resources: &mut GpuResources,
-    chunk_pos: &cgmath::Vector3<i32>,
-    chunk_world_pos: &cgmath::Vector3<f32>,
-) -> bool {
+    chunk_pos: &cgmath::Vector3<i32>
+) -> (Vec::<VoxelVertex>, Vec::<u32>) {
     let chunk_size = chunk::SIZE as i32;
+    let chunk_world_pos = Chunks::chunk_to_world(&chunk_pos);
     let mut quads = Vec::<Quad>::new();
     for x in 0..chunk_size {
         for y in 0..chunk_size {
@@ -56,16 +51,8 @@ pub fn build_chunk_mesh(
         indices.push(vert_index + 3);
         vert_index += 4;
     }
-    if let Some(chunk_mesh) = chunks.get_chunk_mesh_mut(chunk_pos) {
-        let num_indices = indices.len() as u32;
-        let num_vertices = voxel_vertices.len() as u32;
-        let (v_buf, i_buf) = construct_buffers(device, voxel_vertices, indices);
-        let v_buf = gpu_resources.buffer_arena.insert(v_buf);
-        let i_buf = gpu_resources.buffer_arena.insert(i_buf);
-        chunk_mesh.update_vertex_buffers(v_buf, i_buf, num_indices, num_vertices);
-        return num_vertices != 0;
-    }
-    false
+
+    (voxel_vertices, indices)
 }
 
 fn process_voxel(
@@ -102,22 +89,4 @@ fn process_voxel(
             }
         }
     }
-}
-
-fn construct_buffers(
-    device: &wgpu::Device,
-    vertices: Vec<VoxelVertex>,
-    indices: Vec<u32>,
-) -> (wgpu::Buffer, wgpu::Buffer) {
-    let vertex_buffer = device.create_buffer_init(&wgpu::util::BufferInitDescriptor {
-        label: Some("voxel_chunk_vertices"),
-        contents: bytemuck::cast_slice(&vertices),
-        usage: wgpu::BufferUsage::VERTEX,
-    });
-    let index_buffer = device.create_buffer_init(&wgpu::util::BufferInitDescriptor {
-        label: Some("voxel_chunk_indices"),
-        contents: bytemuck::cast_slice(&indices),
-        usage: wgpu::BufferUsage::INDEX,
-    });
-    (vertex_buffer, index_buffer)
 }

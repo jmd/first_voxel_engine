@@ -7,11 +7,13 @@ use std::{
 };
 
 use crate::rendering::gpu_resources::GpuResources;
+use wgpu::util::DeviceExt;
 
 use super::mesh_builder;
 use super::{
     chunk::{Chunk, ChunkMesh, LocalCoordinate, SIZE},
     voxel::Voxel,
+    voxel_rendering::VoxelVertex
 };
 
 // max amount of per-chunk data we can load
@@ -130,7 +132,7 @@ impl Chunks {
         chunk_pos: cgmath::Vector3<i32>,
     ) {
         let mut chunk = self.chunk_pool.detached();
-        let chunk_world_pos = Self::chunk_to_world(chunk_pos);
+        let chunk_world_pos = Self::chunk_to_world(&chunk_pos);
 
         chunk.build_voxel_data(&chunk_world_pos);
         self.chunk_data_map.insert(chunk_pos, chunk);
@@ -148,16 +150,17 @@ impl Chunks {
             let chunk_mesh = self.chunk_mesh_pool.detached();
             self.chunk_mesh_map.insert(chunk_pos, chunk_mesh);
 
-            let chunk_world_pos = Self::chunk_to_world(chunk_pos);
-            if mesh_builder::build_chunk_mesh(
-                self,
-                device,
-                gpu_resources,
-                &chunk_pos,
-                &chunk_world_pos,
-            ) {
-                // successfully built return for now, 'only one per frame'
-                return;
+            let (vertices, indices) = mesh_builder::build_chunk_mesh(self, &chunk_pos);
+             {
+                if let Some(chunk_mesh) = self.get_chunk_mesh_mut(&chunk_pos) {
+                    let num_indices = indices.len() as u32;
+                    let num_vertices = vertices.len() as u32;
+                    let (v_buf, i_buf) = construct_buffers(device, vertices, indices);
+                    let v_buf = gpu_resources.buffer_arena.insert(v_buf);
+                    let i_buf = gpu_resources.buffer_arena.insert(i_buf);
+                    chunk_mesh.update_vertex_buffers(v_buf, i_buf, num_indices, num_vertices);
+                    return;
+                }
             }
         }
     }
@@ -172,7 +175,7 @@ impl Chunks {
             || self.chunk_mesh_load_queue.contains(chunk_pos)
     }
 
-    pub fn chunk_to_world(chunk_pos: cgmath::Vector3<i32>) -> cgmath::Vector3<f32> {
+    pub fn chunk_to_world(chunk_pos: &cgmath::Vector3<i32>) -> cgmath::Vector3<f32> {
         cgmath::Vector3::<f32>::new(
             chunk_pos.x as f32 * SIZE as f32,
             chunk_pos.y as f32 * SIZE as f32,
@@ -182,7 +185,7 @@ impl Chunks {
 
     pub fn in_range(&self, chunk_pos: cgmath::Vector3<i32>) -> bool {
         // convert from i32 postion to world f32 pos
-        let chunk_real_pos = Self::chunk_to_world(chunk_pos);
+        let chunk_real_pos = Self::chunk_to_world(&chunk_pos);
         let delta = self.position - chunk_real_pos;
         let distance_sq: f32 = delta.magnitude2().into();
         let render_dist = (self.render_distance as f32) * SIZE as f32;
@@ -436,4 +439,22 @@ pub fn adjacent_voxels<'a>(
         .try_get_voxel(chunk_pos, &LocalCoordinate(x, y - 1, z))
         .context("no down voxel")?;
     Ok((voxel, back, left, down))
+}
+
+fn construct_buffers(
+    device: &wgpu::Device,
+    vertices: Vec<VoxelVertex>,
+    indices: Vec<u32>,
+) -> (wgpu::Buffer, wgpu::Buffer) {
+    let vertex_buffer = device.create_buffer_init(&wgpu::util::BufferInitDescriptor {
+        label: Some("voxel_chunk_vertices"),
+        contents: bytemuck::cast_slice(&vertices),
+        usage: wgpu::BufferUsage::VERTEX,
+    });
+    let index_buffer = device.create_buffer_init(&wgpu::util::BufferInitDescriptor {
+        label: Some("voxel_chunk_indices"),
+        contents: bytemuck::cast_slice(&indices),
+        usage: wgpu::BufferUsage::INDEX,
+    });
+    (vertex_buffer, index_buffer)
 }

@@ -4,6 +4,14 @@ version = "0.1.0"
 authors = ["TanTanDev <tantangamedev@gmail.com>"]
 edition = "2018"
 
+[lib]
+name = "voxel_lib"
+path = "src/lib.rs"
+
+[[bin]]
+name = "teal_mountain"
+path = "src/main.rs"
+
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
@@ -35,3 +43,10 @@ shaderc = "0.7"
 anyhow = "1.0"
 fs_extra = "1.1"
 glob = "0.3"
+
+[dev-dependencies]
+criterion = "0.3"
+
+[[bench]]
+name = "voxel_benchmark"
+harness = false
