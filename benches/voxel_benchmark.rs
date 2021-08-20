@@ -26,6 +26,7 @@ fn bench_build_chunk_mesh(chunks: &mut Chunks) {
 
 pub fn criterion_benchmark(c: &mut Criterion) {
     let mut chunks = Chunks::new();
+    bench_build_chunk_data(&mut chunks); // Build voxel data at least once for the mesh generation
     c.bench_function("build_chunk_data", |b| b.iter(|| bench_build_chunk_data(&mut chunks)));
     c.bench_function("build_chunk_mesh", |b| b.iter(|| bench_build_chunk_mesh(&mut chunks)));
 }
