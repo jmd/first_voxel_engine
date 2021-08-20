@@ -7,10 +7,12 @@ edition = "2018"
 [lib]
 name = "voxel_lib"
 path = "src/lib.rs"
+bench = false # Fix compatibility issue with Criterion arguments
 
 [[bin]]
 name = "teal_mountain"
 path = "src/main.rs"
+bench = false # Fix compatibility issue with Criterion arguments
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
